@@ -1,22 +1,24 @@
-use std::{
-    fmt::Debug,
-    time::Duration, process::Command,
-};
-use std::io::Write;
 use clap::Parser;
 use eyre::WrapErr;
+use std::io::Write;
+use std::{fmt::Debug, process::Command, time::Duration};
 
 /// Watchline
 ///
 /// Runs a command at given an interval. It is similar to `watch`, but does not clear
 /// the screen.
 #[derive(Parser, Debug)]
-#[command(author, version, about, help_template = "
+#[command(
+    author,
+    version,
+    about,
+    help_template = "
 {before-help}{name} {version}
 {author-with-newline}{about-with-newline}
 {usage-heading} {usage}
 
-{all-args}{after-help}")]
+{all-args}{after-help}"
+)]
 
 struct Args {
     /// Duration in seconds
@@ -28,6 +30,10 @@ struct Args {
     /// The command will keep on running until a SIGTERM is received (e.g., via CTRL-C).
     #[clap(short, long)]
     continue_on_error: bool,
+
+    /// Run command in `exec` mode. By default, the command is ran using `sh -c` to enable piping in the shell.
+    #[clap(short = 'x', long)]
+    exec: bool,
 
     /// Command
     #[clap()]
@@ -46,17 +52,44 @@ fn main() -> simple_eyre::Result<()> {
     let interval = args.interval;
     let continue_on_error = args.continue_on_error;
 
-    let mut watched_cmd = Command::new(&args.cmd);
-    watched_cmd.args(&args.args);
+    let mut watched_cmd = if args.exec {
+        let mut cmd = Command::new(&args.cmd);
+        cmd.args(&args.args);
+        cmd
+    } else {
+        let mut cmd = Command::new("sh");
+        let maincmd = args.cmd;
+
+        let fullcmd = if args.args.is_empty() {
+            maincmd
+        } else {
+            format!("{maincmd} {}", args.args.join(" "))
+        };
+
+        let cmd_args = vec!["-c", &fullcmd];
+        cmd.args(cmd_args);
+        cmd
+    };
 
     loop {
-        let output = watched_cmd.output().wrap_err_with(|| "Cannot execute command")?;
+        let output = watched_cmd
+            .output()
+            .wrap_err_with(|| "Cannot execute command")?;
 
-        std::io::stdout().write_all(&output.stdout).wrap_err_with(|| "Cannot write stdout")?;
-        std::io::stderr().write_all(&output.stderr).wrap_err_with(|| "Cannot write stderr")?;
+        std::io::stdout()
+            .write_all(&output.stdout)
+            .wrap_err_with(|| "Cannot write stdout")?;
+        std::io::stderr()
+            .write_all(&output.stderr)
+            .wrap_err_with(|| "Cannot write stderr")?;
 
         if !continue_on_error && !output.status.success() {
-            std::process::exit(output.status.code().ok_or_else(|| eyre::eyre!("no exit code"))?);
+            std::process::exit(
+                output
+                    .status
+                    .code()
+                    .ok_or_else(|| eyre::eyre!("no exit code"))?,
+            );
         }
 
         std::thread::sleep(Duration::from_secs_f64(interval));
