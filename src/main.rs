@@ -42,10 +42,16 @@ struct Args {
     precise: bool,
 
     /// Command
+    ///
+    /// To avoid quoting issues either use `exec` mode (-x) or provide the command quoted (passed as the first parameter to `sh -c`).
+    /// When the command is quoted, you may use pipe redirection.
     #[clap()]
     cmd: String,
 
     /// Arguments
+    ///
+    /// Note that when not using `exec` mode, the arguments are not quoted.
+    /// To avoid quoting issues, use `exec` mode or use a single quoted command parameter.
     #[clap()]
     args: Vec<String>,
 }
@@ -63,6 +69,8 @@ fn main() -> simple_eyre::Result<()> {
         cmd.args(&args.args);
         cmd
     } else {
+        // Pass command through `sh -c`.
+
         let mut cmd = Command::new("sh");
         let maincmd = args.cmd;
 
