@@ -6,5 +6,7 @@ authors = ["Eldad Zack <eldad@fogrefinery.com>"]
 description = "runs a command at an interval (similar to `watch`; without clearing the screen)"
 
 [dependencies]
-anyhow = "1.0.66"
 clap = { version = "4.0.19", features = ["derive", "cargo"] }
+eyre = "0.6.8"
+simple-eyre = "0.3.1"
+thiserror = "1.0.37"
