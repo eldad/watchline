@@ -5,6 +5,18 @@ edition = "2021"
 authors = ["Eldad Zack <eldad@fogrefinery.com>"]
 description = "runs a command at an interval (similar to `watch`; without clearing the screen)"
 
+[profile.release]
+# strip symbols to reduce binary size
+strip = true
+# optimize for size
+opt-level = "z"
+# link time optimizations
+lto = true
+# maximize size reduction optimizations
+codegen-units = 1
+# we have no symbols, backtrace won't be helpful anyway
+panic = "abort"
+
 [dependencies]
 clap = { version = "4.0.19", features = ["derive", "cargo"] }
 eyre = "0.6.8"
