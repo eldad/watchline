@@ -1,6 +1,7 @@
 use clap::Parser;
 use eyre::WrapErr;
 use std::io::Write;
+use std::time::Instant;
 use std::{fmt::Debug, process::Command, time::Duration};
 
 /// Watchline
@@ -34,6 +35,11 @@ struct Args {
     /// Run command in `exec` mode. By default, the command is ran using `sh -c` to enable piping in the shell.
     #[clap(short = 'x', long)]
     exec: bool,
+
+    /// Precise mode. Account for run time of the command and attempt to start at exact interval.
+    /// If the command execution took longer than a single interval, do not wait.
+    #[clap(short = 'p', long)]
+    precise: bool,
 
     /// Command
     #[clap()]
@@ -71,6 +77,8 @@ fn main() -> simple_eyre::Result<()> {
         cmd
     };
 
+    let mut start = Instant::now();
+
     loop {
         let output = watched_cmd
             .output()
@@ -92,6 +100,17 @@ fn main() -> simple_eyre::Result<()> {
             );
         }
 
-        std::thread::sleep(Duration::from_secs_f64(interval));
+        if args.precise {
+            let time_delta = args.interval - start.elapsed().as_secs_f64();
+            if time_delta > 0.0 {
+                std::thread::sleep(Duration::from_secs_f64(time_delta));
+                start += Duration::from_secs_f64(interval);
+            } else {
+                std::thread::yield_now();
+                start = Instant::now();
+            }
+        } else {
+            std::thread::sleep(Duration::from_secs_f64(interval));
+        }
     }
 }
