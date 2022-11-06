@@ -36,6 +36,10 @@ struct Args {
     #[clap(short = 'x', long)]
     exec: bool,
 
+    /// Alternative interpreter. By default `sh` is used. Ignored when `exec` mode is used. Interpreter must accept `-c` to run a command.
+    #[clap(short, long, default_value = "sh")]
+    interpreter: String,
+
     /// Precise mode. Account for run time of the command and attempt to start at exact interval.
     /// If the command execution took longer than a single interval, do not wait.
     #[clap(short = 'p', long)]
@@ -71,7 +75,7 @@ fn main() -> simple_eyre::Result<()> {
     } else {
         // Pass command through `sh -c`.
 
-        let mut cmd = Command::new("sh");
+        let mut cmd = Command::new(args.interpreter);
         let maincmd = args.cmd;
 
         let fullcmd = if args.args.is_empty() {
