@@ -1,0 +1,8 @@
+repos:
+- repo: local
+  hooks:
+    - id: rustfmt
+      name: rustfmt
+      entry: rustfmt -l
+      language: 'system'
+      files: '.*\.rs'

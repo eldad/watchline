@@ -92,9 +92,7 @@ fn main() -> simple_eyre::Result<()> {
     let mut start = Instant::now();
 
     loop {
-        let output = watched_cmd
-            .output()
-            .wrap_err_with(|| "Cannot execute command")?;
+        let output = watched_cmd.output().wrap_err_with(|| "Cannot execute command")?;
 
         std::io::stdout()
             .write_all(&output.stdout)
@@ -104,12 +102,7 @@ fn main() -> simple_eyre::Result<()> {
             .wrap_err_with(|| "Cannot write stderr")?;
 
         if !continue_on_error && !output.status.success() {
-            std::process::exit(
-                output
-                    .status
-                    .code()
-                    .ok_or_else(|| eyre::eyre!("no exit code"))?,
-            );
+            std::process::exit(output.status.code().ok_or_else(|| eyre::eyre!("no exit code"))?);
         }
 
         if args.precise {
