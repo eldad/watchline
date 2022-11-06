@@ -37,7 +37,7 @@ struct Args {
     exec: bool,
 
     /// Alternative interpreter. By default `sh` is used. Ignored when `exec` mode is used. Interpreter must accept `-c` to run a command.
-    #[clap(short, long, default_value = "sh")]
+    #[clap(short = 's', long, default_value = "sh")]
     interpreter: String,
 
     /// Precise mode. Account for run time of the command and attempt to start at exact interval.
