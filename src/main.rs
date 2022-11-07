@@ -48,7 +48,7 @@ use std::{fmt::Debug, process::Command, time::Duration};
 
 struct Args {
     /// Duration in seconds
-    #[clap(short, long, default_value = "1.0")]
+    #[clap(short = 'n', long, default_value = "1.0")]
     interval: f64,
 
     /// Continue on error (if commands exits with code other than 0).
