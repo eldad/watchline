@@ -3,7 +3,10 @@ name = "watchline"
 version = "0.1.0"
 edition = "2021"
 authors = ["Eldad Zack <eldad@fogrefinery.com>"]
-description = "runs a command at an interval (similar to `watch`; without clearing the screen)"
+description = "runs a command at an fixed interval"
+repository = "https://github.com/eldad/watchline"
+license = "MIT"
+categories = ["command-line-utilities"]
 
 [profile.release]
 # strip symbols to reduce binary size
