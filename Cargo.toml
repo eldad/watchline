@@ -21,7 +21,7 @@ codegen-units = 1
 panic = "abort"
 
 [dependencies]
-clap = { version = "4.1.11", features = ["derive", "cargo"] }
+clap = { version = "4.3.11", features = ["derive", "cargo"] }
 eyre = "0.6.8"
 simple-eyre = "0.3.1"
 thiserror = "1.0.41"
