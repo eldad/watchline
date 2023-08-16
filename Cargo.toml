@@ -24,4 +24,4 @@ panic = "abort"
 clap = { version = "4.3.21", features = ["derive", "cargo"] }
 eyre = "0.6.8"
 simple-eyre = "0.3.1"
-thiserror = "1.0.43"
+thiserror = "1.0.46"
