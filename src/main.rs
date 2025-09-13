@@ -24,7 +24,6 @@
  */
 
 use clap::Parser;
-use eyre::WrapErr;
 use std::io::Write;
 use std::time::Instant;
 use std::{fmt::Debug, process::Command, time::Duration};
@@ -45,7 +44,6 @@ use std::{fmt::Debug, process::Command, time::Duration};
 
 {all-args}{after-help}"
 )]
-
 struct Args {
     /// Duration in seconds
     #[clap(short = 'n', long, default_value = "1.0")]
@@ -85,9 +83,7 @@ struct Args {
     args: Vec<String>,
 }
 
-fn main() -> simple_eyre::Result<()> {
-    simple_eyre::install()?;
-
+fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     let interval = args.interval;
@@ -117,17 +113,19 @@ fn main() -> simple_eyre::Result<()> {
     let mut start = Instant::now();
 
     loop {
-        let output = watched_cmd.output().wrap_err_with(|| "Cannot execute command")?;
+        let output = watched_cmd
+            .output()
+            .map_err(|_| anyhow::anyhow!("Cannot execute command"))?;
 
         std::io::stdout()
             .write_all(&output.stdout)
-            .wrap_err_with(|| "Cannot write stdout")?;
+            .map_err(|_| anyhow::anyhow!("Cannot write stdout"))?;
         std::io::stderr()
             .write_all(&output.stderr)
-            .wrap_err_with(|| "Cannot write stderr")?;
+            .map_err(|_| anyhow::anyhow!("Cannot write stderr"))?;
 
         if !continue_on_error && !output.status.success() {
-            std::process::exit(output.status.code().ok_or_else(|| eyre::eyre!("no exit code"))?);
+            std::process::exit(output.status.code().ok_or_else(|| anyhow::anyhow!("no exit code"))?);
         }
 
         if args.precise {
