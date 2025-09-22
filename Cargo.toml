@@ -21,6 +21,6 @@ codegen-units = 1
 panic = "abort"
 
 [dependencies]
-anyhow = "1.0.99"
+anyhow = "1.0.100"
 clap = { version = "4", features = ["derive", "cargo"] }
 thiserror = "2"
